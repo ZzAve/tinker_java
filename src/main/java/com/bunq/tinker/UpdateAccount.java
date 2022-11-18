@@ -8,6 +8,8 @@ import com.bunq.tinker.utils.ITinker;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
+import java.net.UnknownHostException;
+
 public class UpdateAccount implements ITinker {
 
     /**
@@ -15,7 +17,7 @@ public class UpdateAccount implements ITinker {
      *
      * @throws ParseException
      */
-    public void run(String[] args) throws ParseException {
+    public void run(String[] args) throws ParseException, UnknownHostException {
         CommandLine allOption = SharedLib.parseAllOption(args);
         ApiEnvironmentType environmentType = SharedLib.determineEnvironmentType(allOption);
 

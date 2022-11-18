@@ -1,13 +1,16 @@
 package com.bunq.tinker;
 
 import com.bunq.sdk.context.ApiContext;
-import com.bunq.sdk.context.ApiEnvironmentType;
 import com.bunq.sdk.exception.BunqException;
 import com.bunq.sdk.model.generated.object.Certificate;
 import com.bunq.sdk.security.SecurityUtils;
 import com.bunq.tinker.libs.SharedLib;
 import com.bunq.tinker.utils.ITinker;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import java.util.ArrayList;
 
@@ -51,7 +54,7 @@ public class CreatePsd2Configuration implements ITinker {
         SharedLib.printHeader();
       
         System.out.println();
-        System.out.println("  | Creating API Context for PSD2 usage.);
+        System.out.println("  | Creating API Context for PSD2 usage.");
         System.out.println();
         
         ApiContext apiContext = ApiContext.createForPsd2(

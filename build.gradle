@@ -5,8 +5,20 @@ apply plugin: 'java'
 apply plugin: 'maven'
 sourceCompatibility = 1.8
 
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            exclude '**/examples/**'
+            exclude '**/test/**'
+        }
+    }
+}
+
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url 'https://jitpack.io' }
 }
 
@@ -14,7 +26,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
-    compile 'com.github.bunq:sdk_java:1.13.1'
+    compile 'com.bunq.sdk:sdk_java:1.20.22.74-zzave' // Set this to local version of original (working) SDK
+//    compile 'com.bunq.sdk:bunq-sdk-multiplatform-jvm:1.0.0-SNAPSHOT' // Set this to local version of multiplatform jvm SDK
 }
 
 compileJava {

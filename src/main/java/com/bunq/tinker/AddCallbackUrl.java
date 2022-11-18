@@ -2,14 +2,15 @@ package com.bunq.tinker;
 
 import com.bunq.sdk.context.ApiEnvironmentType;
 import com.bunq.sdk.model.core.NotificationFilterUrlUserInternal;
-import com.bunq.sdk.model.generated.endpoint.NotificationFilterUrlUser;
-import com.bunq.sdk.model.generated.object.NotificationFilterUrl;
+import com.bunq.sdk.model.generated.endpoint.NotificationFilterUrl;
+import com.bunq.sdk.model.generated.object.NotificationFilterUrlObject;
 import com.bunq.tinker.libs.BunqLib;
 import com.bunq.tinker.libs.SharedLib;
 import com.bunq.tinker.utils.ITinker;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class AddCallbackUrl implements ITinker {
      *
      * @throws ParseException
      */
-    public void run(String[] args) throws ParseException {
+    public void run(String[] args) throws ParseException, UnknownHostException {
         CommandLine allOption = SharedLib.parseAllOption(args);
         ApiEnvironmentType environmentType = SharedLib.determineEnvironmentType(allOption);
 
@@ -41,19 +42,17 @@ public class AddCallbackUrl implements ITinker {
         System.out.println("    ...");
         System.out.println();
 
-        List<NotificationFilterUrlUser> allNotificationFilterCurrent = NotificationFilterUrlUser.list().getValue();
-        List<NotificationFilterUrl> allNotificationFilterUpdated = new ArrayList<>();
+        List<NotificationFilterUrlObject> allNotificationFilterCurrent = NotificationFilterUrl.list().getValue();
+        List<NotificationFilterUrlObject> allNotificationFilterUpdated = new ArrayList<>();
 
-        for (NotificationFilterUrlUser notificationFilterUrlUser : allNotificationFilterCurrent) {
-            for (NotificationFilterUrl notificationFilterUrl : notificationFilterUrlUser.getNotificationFilters()) {
-                if (callbackUrl.equals(notificationFilterUrl.getNotificationTarget())) {
-                    allNotificationFilterUpdated.add(notificationFilterUrl);
+        for (NotificationFilterUrlObject notificationFilterUrlUser : allNotificationFilterCurrent) {
+                if (callbackUrl.equals(notificationFilterUrlUser.getNotificationTarget())) {
+                    allNotificationFilterUpdated.add(notificationFilterUrlUser);
                 }
-            }
         }
 
         allNotificationFilterUpdated.add(
-                new NotificationFilterUrl(NOTIFICATION_CATEGORY_MUTATION, callbackUrl)
+                new NotificationFilterUrlObject(NOTIFICATION_CATEGORY_MUTATION, callbackUrl)
         );
 
         NotificationFilterUrlUserInternal.createWithListResponse(allNotificationFilterUpdated);

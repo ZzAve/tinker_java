@@ -3,9 +3,22 @@ package com.bunq.tinker.libs;
 import com.bunq.sdk.context.ApiEnvironmentType;
 import com.bunq.sdk.exception.BunqException;
 import com.bunq.sdk.model.core.BunqModel;
-import com.bunq.sdk.model.generated.endpoint.*;
+import com.bunq.sdk.model.generated.endpoint.Card;
+import com.bunq.sdk.model.generated.endpoint.MonetaryAccountBank;
+import com.bunq.sdk.model.generated.endpoint.Payment;
+import com.bunq.sdk.model.generated.endpoint.RequestInquiry;
+import com.bunq.sdk.model.generated.endpoint.User;
+import com.bunq.sdk.model.generated.endpoint.UserApiKey;
+import com.bunq.sdk.model.generated.endpoint.UserCompany;
+import com.bunq.sdk.model.generated.endpoint.UserPaymentServiceProvider;
+import com.bunq.sdk.model.generated.endpoint.UserPerson;
 import com.bunq.sdk.model.generated.object.Pointer;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.util.List;
 import java.util.Scanner;
@@ -168,15 +181,16 @@ public class SharedLib {
         String userName;
         int userId;
 
+
         if (userModel instanceof UserPerson) {
             userId = ((UserPerson) userModel).getId();
             userName = ((UserPerson) userModel).getDisplayName();
-        } else if (userModel instanceof UserCompany) {
+        } else if (userModel instanceof UserPaymentServiceProvider) {
             userId = ((UserCompany) userModel).getId();
             userName = ((UserCompany) userModel).getDisplayName();
-        } else if (userModel instanceof UserLight) {
-            userId = ((UserLight) userModel).getId();
-            userName = ((UserLight) userModel).getDisplayName();
+        } else if (userModel instanceof UserApiKey) {
+            userId = ((UserApiKey) userModel).getId();
+            userName = ((UserApiKey) userModel).getGrantedByUser().getUserPerson().getDisplayName();
         } else {
             throw new BunqException("Unexpected user type received.");
         }
@@ -274,10 +288,14 @@ public class SharedLib {
 
     public static void printAllCard(List<Card> allCard, List<MonetaryAccountBank> allMonetaryAccountBank) {
         System.out.println(ECHO_CARD);
+        System.out.println(allCard);
 
         for (Card card : allCard) {
-            printCard(card, allMonetaryAccountBank);
-            System.out.println();
+            if (card != null) {
+
+                printCard(card, allMonetaryAccountBank);
+                System.out.println();
+            }
         }
     }
 

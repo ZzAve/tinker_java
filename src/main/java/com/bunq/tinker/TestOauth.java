@@ -10,7 +10,11 @@ import com.bunq.sdk.model.generated.endpoint.OauthClient;
 import com.bunq.tinker.libs.SharedLib;
 import com.bunq.tinker.utils.ITinker;
 import com.google.gson.stream.JsonReader;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import java.io.FileInputStream;
 import java.io.IOException;

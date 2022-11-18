@@ -10,8 +10,9 @@ import com.bunq.sdk.model.generated.endpoint.Card;
 import com.bunq.sdk.model.generated.endpoint.MonetaryAccountBank;
 import com.bunq.sdk.model.generated.endpoint.Payment;
 import com.bunq.sdk.model.generated.endpoint.RequestInquiry;
-import com.bunq.sdk.model.generated.endpoint.SandboxUser;
+import com.bunq.sdk.model.generated.endpoint.SandboxUserPerson;
 import com.bunq.sdk.model.generated.endpoint.User;
+import com.bunq.sdk.model.generated.endpoint.UserApiKey;
 import com.bunq.sdk.model.generated.endpoint.UserCompany;
 import com.bunq.sdk.model.generated.endpoint.UserPerson;
 import com.bunq.sdk.model.generated.object.Amount;
@@ -28,6 +29,8 @@ import okhttp3.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -88,11 +91,11 @@ public class BunqLib {
    */
   private static final double BALANCE_ZERO = 0.0;
 
-  private ApiEnvironmentType environmentType;
+  private final ApiEnvironmentType environmentType;
 
   private User user;
 
-  public BunqLib(ApiEnvironmentType environmentType) {
+  public BunqLib(ApiEnvironmentType environmentType) throws UnknownHostException {
     this.environmentType = environmentType;
 
     this.setupContext();
@@ -102,24 +105,39 @@ public class BunqLib {
 
   /**
    */
-  private void setupContext() {
+  private void setupContext() throws UnknownHostException {
     this.setupContext(true);
+  }
+
+  private ApiContext createApiConfig() throws UnknownHostException {
+    ArrayList<String> permittedIps = new ArrayList<>();
+    permittedIps.add("*");
+    return ApiContext.create(
+            this.environmentType,
+            System.getenv("apikey"), // FIX, proper fix
+            InetAddress.getLocalHost().getHostName(),
+            permittedIps
+    );
   }
 
   /**
    */
-  private void setupContext(boolean resetConfigIfNeeded) {
+  private void setupContext(boolean resetConfigIfNeeded) throws UnknownHostException {
+    ApiContext apiContext;
+
     if (new File(this.determineBunqConfigFileName()).exists()) {
       // Config is already present.
+      apiContext = ApiContext.restore(this.determineBunqConfigFileName());
     } else if (ApiEnvironmentType.SANDBOX.equals(this.environmentType)) {
-      SandboxUser sandboxUser = generateNewSandboxUser();
-      ApiContext.create(ApiEnvironmentType.SANDBOX, sandboxUser.getApiKey(), DEVICE_SERVER_DESCRIPTION).save(this.determineBunqConfigFileName());
+      SandboxUserPerson sandboxUser = generateNewSandboxUser();
+      apiContext = ApiContext.create(ApiEnvironmentType.SANDBOX, sandboxUser.getApiKey(), DEVICE_SERVER_DESCRIPTION);
     } else {
-      throw new BunqException(ERROR_COULD_NOT_FIND_CONFIG_FILE);
+//      log.info("No API config found. Creating new API config.");
+      apiContext = createApiConfig();
+//      log.info("Created new API config.");
     }
 
     try {
-      ApiContext apiContext = ApiContext.restore(this.determineBunqConfigFileName());
 
       apiContext.ensureSessionActive();
       apiContext.save(this.determineBunqConfigFileName());
@@ -151,7 +169,7 @@ public class BunqLib {
 
   /**
    */
-  private void handleForbiddenException(ForbiddenException forbiddenException) {
+  private void handleForbiddenException(ForbiddenException forbiddenException) throws UnknownHostException {
     if (ApiEnvironmentType.SANDBOX.equals(this.environmentType)) {
       this.deleteOldConfig();
       this.setupContext(false);
@@ -282,12 +300,14 @@ public class BunqLib {
       return ((UserPerson) this.getUser().getReferencedObject()).getAlias();
     } else if (this.getUser().getReferencedObject() instanceof UserCompany) {
       return ((UserCompany) this.getUser().getReferencedObject()).getAlias();
+    } else if (this.getUser().getReferencedObject() instanceof UserApiKey) {
+      return new ArrayList<>();
     } else {
       throw new BunqException(ERROR_COULD_NOT_DETERMINE_USER_TYPE);
     }
   }
 
-  private SandboxUser generateNewSandboxUser() {
+  private SandboxUserPerson generateNewSandboxUser() {
     OkHttpClient client = new OkHttpClient();
 
     Request request = new Request.Builder()
@@ -307,7 +327,7 @@ public class BunqLib {
         JsonObject jsonObject = new Gson().fromJson(responseString, JsonObject.class);
         JsonObject apiKEy = jsonObject.getAsJsonArray(FIELD_RESPONSE).get(INDEX_FIRST).getAsJsonObject().get(FIELD_API_KEY).getAsJsonObject();
 
-        return SandboxUser.fromJsonReader(new JsonReader(new StringReader(apiKEy.toString())));
+        return SandboxUserPerson.fromJsonReader(new JsonReader(new StringReader(apiKEy.toString())));
       } else {
         throw new BunqException(String.format(ERROR_COULD_NOT_GENERATE_NEW_API_KEY, response.body().string()));
       }

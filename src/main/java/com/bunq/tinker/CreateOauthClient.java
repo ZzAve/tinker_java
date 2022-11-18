@@ -1,7 +1,6 @@
 package com.bunq.tinker;
 
 import com.bunq.sdk.context.ApiContext;
-import com.bunq.sdk.context.ApiEnvironmentType;
 import com.bunq.sdk.context.BunqContext;
 import com.bunq.sdk.exception.BunqException;
 import com.bunq.sdk.json.BunqGsonBuilder;
@@ -9,15 +8,19 @@ import com.bunq.sdk.model.core.OauthAuthorizationUri;
 import com.bunq.sdk.model.core.OauthResponseType;
 import com.bunq.sdk.model.generated.endpoint.OauthCallbackUrl;
 import com.bunq.sdk.model.generated.endpoint.OauthClient;
-import com.bunq.sdk.model.generated.object.Certificate;
-import com.bunq.sdk.security.SecurityUtils;
 import com.bunq.tinker.utils.ITinker;
 import com.google.gson.stream.JsonReader;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class CreateOauthClient implements ITinker {
     /**

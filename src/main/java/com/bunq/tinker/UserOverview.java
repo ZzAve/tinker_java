@@ -1,13 +1,19 @@
 package com.bunq.tinker;
 
 import com.bunq.sdk.context.ApiEnvironmentType;
-import com.bunq.sdk.model.generated.endpoint.*;
+import com.bunq.sdk.model.generated.endpoint.Card;
+import com.bunq.sdk.model.generated.endpoint.MonetaryAccountBank;
+import com.bunq.sdk.model.generated.endpoint.Payment;
+import com.bunq.sdk.model.generated.endpoint.RequestInquiry;
+import com.bunq.sdk.model.generated.endpoint.User;
 import com.bunq.sdk.model.generated.object.Pointer;
 import com.bunq.tinker.libs.BunqLib;
 import com.bunq.tinker.libs.SharedLib;
 import com.bunq.tinker.utils.ITinker;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
 public class UserOverview implements ITinker {
@@ -17,7 +23,7 @@ public class UserOverview implements ITinker {
      *
      * @throws ParseException
      */
-    public void run(String[] args) throws ParseException {
+    public void run(String[] args) throws ParseException, UnknownHostException {
         CommandLine allOption = SharedLib.parseAllOption(args);
         ApiEnvironmentType environmentType = SharedLib.determineEnvironmentType(allOption);
 
